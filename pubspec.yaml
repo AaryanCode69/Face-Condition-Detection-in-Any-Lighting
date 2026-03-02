@@ -1,0 +1,20 @@
+name: face_mood_light_detector
+description: "Real-time face condition detection with emotion analysis and lighting adaptation."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  get: ^4.7.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^7.0.0
+
+flutter:
+  uses-material-design: true
