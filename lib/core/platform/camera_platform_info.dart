@@ -1,6 +1,6 @@
 import 'dart:io';
 
-/// Platform camera capabilities. Stub in Phase 1; real data in Phase 2.
+/// Platform camera capabilities and device information.
 class CameraPlatformInfo {
   bool get supportsImageStream => Platform.isAndroid || Platform.isIOS;
 
@@ -12,4 +12,17 @@ class CameraPlatformInfo {
   }
 
   bool get hasFrontCamera => Platform.isAndroid || Platform.isIOS;
+
+  /// Whether the default image stream format is YUV.
+  bool get isYuvFormat => Platform.isAndroid;
+
+  /// Whether the default image stream format is BGRA.
+  bool get isBgraFormat => Platform.isIOS;
+
+  /// Whether front camera preview needs horizontal mirroring for overlays.
+  bool get frontCameraNeedsMirroring => true;
+
+  /// The typical sensor orientation for the front camera.
+  /// Android: varies by device (usually 270); iOS: usually 0.
+  int get typicalFrontSensorRotation => Platform.isAndroid ? 270 : 0;
 }

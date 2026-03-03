@@ -1,26 +1,114 @@
+import 'package:camera/camera.dart' as cam;
+import 'package:face_mood_light_detector/domain/enums/camera_state.dart';
 import 'package:face_mood_light_detector/modules/camera/controllers/camera_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/// Live camera preview widget.
-///
-/// Phase 1 stub — actual camera texture rendered in Phase 2.
+/// Displays the live camera preview with permission / error states.
 class CameraPreviewView extends GetView<AppCameraController> {
   const CameraPreviewView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => controller.isReady.value
-          ? const Center(
-              child: Text(
-                'Camera stream active (Phase 2)',
-                style: TextStyle(color: Colors.white70),
-              ),
-            )
-          : const Center(
-              child: CircularProgressIndicator(),
+    return Obx(() {
+      switch (controller.cameraState.value) {
+        case CameraState.idle:
+        case CameraState.initializing:
+          return _buildLoading();
+        case CameraState.ready:
+          return _buildPreview();
+        case CameraState.error:
+          return _buildError(context);
+      }
+    });
+  }
+
+  Widget _buildLoading() {
+    return const ColoredBox(
+      color: Colors.black,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: Colors.white70),
+            SizedBox(height: 16),
+            Text(
+              'Initializing camera...',
+              style: TextStyle(color: Colors.white70),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPreview() {
+    final camCtrl = controller.cameraService.controller;
+    if (camCtrl == null || !camCtrl.value.isInitialized) {
+      return _buildLoading();
+    }
+
+    return ColoredBox(
+      color: Colors.black,
+      child: Center(
+        child: AspectRatio(
+          aspectRatio: camCtrl.value.aspectRatio,
+          child: cam.CameraPreview(camCtrl),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildError(BuildContext context) {
+    final hasPermission = controller.isPermissionGranted.value;
+    return ColoredBox(
+      color: Colors.black87,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.videocam_off,
+                size: 64,
+                color: Colors.white54,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                hasPermission
+                    ? 'Camera initialization failed'
+                    : 'Camera permission required',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                hasPermission
+                    ? 'Please restart the app or check device settings.'
+                    : 'This app needs camera access to detect '
+                        'face conditions.',
+                style: const TextStyle(
+                  color: Colors.white54,
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: controller.retryPermission,
+                icon: const Icon(Icons.refresh),
+                label: Text(
+                  hasPermission ? 'Retry' : 'Grant Permission',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
