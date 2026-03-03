@@ -2,9 +2,6 @@ import 'package:face_mood_light_detector/modules/detection/controllers/emotion_c
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/// Emotion classification result display.
-///
-/// Phase 1 stub — confidence bars and animated transitions added in Phase 4.
 class EmotionDisplayView extends GetView<EmotionController> {
   const EmotionDisplayView({super.key});
 

@@ -1,6 +1,3 @@
-/// Per-stage inference latency tracker.
-///
-/// Skeleton in Phase 1; fully wired in Phase 6.
 class InferenceTimer {
   int? _startTime;
   int _lastFaceDetectionMs = 0;
@@ -17,7 +14,6 @@ class InferenceTimer {
         DateTime.now().millisecondsSinceEpoch - _startTime!;
   }
 
-  /// Delta excludes face-detection time.
   void recordEmotionAnalysis() {
     if (_startTime == null) return;
     final now = DateTime.now().millisecondsSinceEpoch;

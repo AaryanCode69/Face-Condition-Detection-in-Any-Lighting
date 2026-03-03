@@ -1,10 +1,6 @@
 enum LightingCondition {
-  /// Overexposed regions likely.
   tooBright,
-
-  /// Underexposed, noisy image.
   tooDim,
-
   balanced;
 
   String get label {

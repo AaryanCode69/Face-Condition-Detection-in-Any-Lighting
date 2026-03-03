@@ -16,13 +16,8 @@ class PipelineConfig {
   final bool enableEmotionAnalysis;
   final bool enableLightingAnalysis;
 
-  /// EV stops.
   final double exposureOffset;
-
-  /// For dim lighting preprocessing.
   final bool contrastBoost;
-
-  /// For bright lighting preprocessing.
   final bool gammaCorrection;
 
   PipelineConfig copyWith({
@@ -67,7 +62,6 @@ class PipelineMetrics {
   final double frameDropRate;
 }
 
-/// Composes face detection + emotion + lighting into an ordered pipeline.
 abstract class DetectionPipeline {
   Stream<DetectionFrame> get resultStream;
   Future<void> start();

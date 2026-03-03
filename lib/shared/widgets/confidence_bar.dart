@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Animated horizontal confidence meter (0.0–1.0).
 class ConfidenceBar extends StatelessWidget {
   const ConfidenceBar({
     required this.label,
@@ -11,11 +10,7 @@ class ConfidenceBar extends StatelessWidget {
   });
 
   final String label;
-
-  /// 0.0–1.0.
   final double value;
-
-  /// Falls back to theme primary.
   final Color? color;
   final double height;
 

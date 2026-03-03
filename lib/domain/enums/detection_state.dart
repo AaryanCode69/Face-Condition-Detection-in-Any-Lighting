@@ -1,8 +1,6 @@
 enum DetectionState {
   idle,
   detecting,
-
-  /// e.g. app backgrounded.
   paused,
   error;
 

@@ -2,7 +2,6 @@ import 'package:face_mood_light_detector/domain/entities/face_detection_result.d
 import 'package:face_mood_light_detector/domain/entities/lighting_result.dart';
 import 'package:face_mood_light_detector/domain/enums/lighting_condition.dart';
 
-/// Synchronous, pure computation — must complete in <2 ms per frame.
 abstract class LightingAnalyzer {
   LightingResult analyzeLighting(CameraFrame frame);
 

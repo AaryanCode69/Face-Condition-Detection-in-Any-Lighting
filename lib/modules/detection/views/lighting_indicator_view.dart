@@ -2,9 +2,6 @@ import 'package:face_mood_light_detector/modules/detection/controllers/lighting_
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/// Lighting condition indicator badge.
-///
-/// Phase 1 stub — adaptive UI hints added in Phase 5.
 class LightingIndicatorView extends GetView<LightingController> {
   const LightingIndicatorView({super.key});
 

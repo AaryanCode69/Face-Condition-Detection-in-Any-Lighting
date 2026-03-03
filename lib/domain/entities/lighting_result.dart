@@ -19,13 +19,8 @@ class LightingResult {
   final LightingCondition condition;
   final double estimatedLux;
 
-  /// Mean pixel brightness (0–255).
   final double meanBrightness;
-
-  /// Fraction of overexposed pixels (Y > 240).
   final double overexposedPercent;
-
-  /// Fraction of underexposed pixels (Y < 20).
   final double underexposedPercent;
 
   @override

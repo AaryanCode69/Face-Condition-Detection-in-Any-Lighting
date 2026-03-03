@@ -4,7 +4,6 @@ import 'package:face_mood_light_detector/modules/camera/controllers/camera_contr
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/// Displays the live camera preview with permission / error states.
 class CameraPreviewView extends GetView<AppCameraController> {
   const CameraPreviewView({super.key});
 
@@ -16,7 +15,7 @@ class CameraPreviewView extends GetView<AppCameraController> {
         case CameraState.initializing:
           return _buildLoading();
         case CameraState.ready:
-          return _buildPreview();
+          return _buildPreview(context);
         case CameraState.error:
           return _buildError(context);
       }
@@ -42,17 +41,25 @@ class CameraPreviewView extends GetView<AppCameraController> {
     );
   }
 
-  Widget _buildPreview() {
+  Widget _buildPreview(BuildContext context) {
     final camCtrl = controller.cameraService.controller;
     if (camCtrl == null || !camCtrl.value.isInitialized) {
       return _buildLoading();
     }
 
+    // camCtrl.value.aspectRatio is landscape-oriented (width/height).
+    // In portrait mode we must invert it so the preview isn't stretched.
+    final cameraAspectRatio = camCtrl.value.aspectRatio;
+    final previewAspectRatio =
+        MediaQuery.of(context).orientation == Orientation.portrait
+            ? 1.0 / cameraAspectRatio
+            : cameraAspectRatio;
+
     return ColoredBox(
       color: Colors.black,
       child: Center(
         child: AspectRatio(
-          aspectRatio: camCtrl.value.aspectRatio,
+          aspectRatio: previewAspectRatio,
           child: cam.CameraPreview(camCtrl),
         ),
       ),

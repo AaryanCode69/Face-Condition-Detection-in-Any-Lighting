@@ -11,8 +11,6 @@ class FaceDetectionConfig {
 
   /// Relative to image (0.0–1.0).
   final double minFaceSize;
-
-  /// Prefer speed over accuracy.
   final bool performanceMode;
   final bool enableLandmarks;
   final bool enableTracking;
@@ -43,15 +41,11 @@ enum EngineStatus {
   disposed,
 }
 
-/// Only engine implementations import ML SDK packages.
 abstract class FaceDetectionEngine {
-  /// Returns a possibly-empty list of detections.
   Future<List<FaceDetectionResult>> detectFaces(CameraFrame frame);
 
   /// Must be called before [detectFaces].
   Future<void> initialize(FaceDetectionConfig config);
-
-  /// Releases native resources.
   Future<void> dispose();
 
   bool get isInitialized;

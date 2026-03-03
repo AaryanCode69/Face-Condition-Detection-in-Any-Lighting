@@ -2,9 +2,6 @@ import 'package:face_mood_light_detector/modules/settings/controllers/settings_c
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/// Settings screen for toggling feature flags and tuning thresholds.
-///
-/// Phase 1 stub — persisted with shared_preferences in Phase 7.
 class SettingsView extends GetView<SettingsController> {
   const SettingsView({super.key});
 

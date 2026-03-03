@@ -2,21 +2,21 @@ import 'package:face_mood_light_detector/app/config/app_config.dart';
 import 'package:face_mood_light_detector/core/error/error_handler.dart';
 import 'package:face_mood_light_detector/core/logger/app_logger.dart';
 import 'package:face_mood_light_detector/core/performance/frame_rate_monitor.dart';
+import 'package:face_mood_light_detector/core/performance/inference_timer.dart';
+import 'package:face_mood_light_detector/data/engines/mlkit_face_detection_engine.dart';
+import 'package:face_mood_light_detector/data/repositories/detection_repository.dart';
+import 'package:face_mood_light_detector/domain/interfaces/face_detection_engine.dart';
 import 'package:face_mood_light_detector/modules/camera/controllers/camera_controller.dart';
 import 'package:face_mood_light_detector/modules/dashboard/controllers/dashboard_controller.dart';
+import 'package:face_mood_light_detector/modules/detection/controllers/face_detection_controller.dart';
 import 'package:face_mood_light_detector/services/camera_service.dart';
+import 'package:face_mood_light_detector/services/detection_pipeline_service.dart';
 import 'package:face_mood_light_detector/services/frame_throttle_service.dart';
 import 'package:get/get.dart';
 
-/// Registers all dependencies for the dashboard / detection screen.
-///
-/// Phase 2: Camera service, throttle service, camera controller.
-/// Later phases add: FaceDetection (P3), Emotion (P4),
-/// Lighting (P5), Isolate inference (P6).
 class DetectionBinding extends Bindings {
   @override
   void dependencies() {
-    // Services
     Get
       ..lazyPut<CameraService>(
         () => CameraService(
@@ -28,9 +28,31 @@ class DetectionBinding extends Bindings {
         () => FrameThrottleService(
           targetFps: Get.find<AppConfig>().defaultTargetFps,
         ),
-      );
+      )
+      ..lazyPut<InferenceTimer>(InferenceTimer.new);
 
-    // Controllers
+    // ignore: cascade_invocations
+    Get.lazyPut<FaceDetectionEngine>(MlKitFaceDetectionEngine.new);
+
+    // ignore: cascade_invocations
+    Get.lazyPut<DetectionRepository>(
+      () => DetectionRepository(
+        faceEngine: Get.find<FaceDetectionEngine>(),
+        logger: Get.find<AppLogger>(),
+      ),
+    );
+
+    // ignore: cascade_invocations
+    Get.lazyPut<DetectionPipelineService>(
+      () => DetectionPipelineService(
+        cameraService: Get.find<CameraService>(),
+        detectionRepository: Get.find<DetectionRepository>(),
+        throttleService: Get.find<FrameThrottleService>(),
+        inferenceTimer: Get.find<InferenceTimer>(),
+        logger: Get.find<AppLogger>(),
+      ),
+    );
+
     // ignore: cascade_invocations
     Get
       ..lazyPut<AppCameraController>(
@@ -38,6 +60,12 @@ class DetectionBinding extends Bindings {
           cameraService: Get.find<CameraService>(),
           logger: Get.find<AppLogger>(),
           errorHandler: Get.find<ErrorHandler>(),
+        ),
+      )
+      ..lazyPut<FaceDetectionController>(
+        () => FaceDetectionController(
+          pipelineService: Get.find<DetectionPipelineService>(),
+          logger: Get.find<AppLogger>(),
         ),
       )
       ..lazyPut<DashboardController>(DashboardController.new);

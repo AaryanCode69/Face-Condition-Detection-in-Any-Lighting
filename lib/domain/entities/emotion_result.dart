@@ -12,7 +12,6 @@ class EmotionResult {
 
   final EmotionType dominantEmotion;
 
-  /// Confidence scores per emotion (0.0–1.0).
   final Map<EmotionType, double> confidences;
 
   double get dominantConfidence => confidences[dominantEmotion] ?? 0;

@@ -5,7 +5,6 @@ import 'package:face_mood_light_detector/core/logger/app_logger.dart';
 import 'package:face_mood_light_detector/core/performance/frame_rate_monitor.dart';
 import 'package:get/get.dart';
 
-/// All bindings here are permanent — they survive the entire app lifecycle.
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
@@ -14,7 +13,7 @@ class InitialBinding extends Bindings {
       ..put<FeatureFlags>(const FeatureFlags(), permanent: true)
       ..put<AppLogger>(AppLogger(), permanent: true);
 
-    // Separate cascade: ErrorHandler depends on AppLogger registered above.
+    // ErrorHandler depends on AppLogger registered above.
     // ignore: cascade_invocations
     Get
       ..put<ErrorHandler>(

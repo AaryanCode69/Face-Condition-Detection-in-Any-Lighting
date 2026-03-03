@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 /// Semantic colors for detection UI overlays.
-/// Access via `Theme.of(context).extension<DetectionTheme>()`.
 class DetectionTheme extends ThemeExtension<DetectionTheme> {
   const DetectionTheme({
     required this.overlayBoxColor,

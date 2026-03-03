@@ -10,11 +10,6 @@ import 'package:flutter/widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-/// Manages camera lifecycle, permissions, and frame streaming.
-///
-/// Implements [WidgetsBindingObserver] to automatically pause/resume the
-/// camera when the app goes to/from the background, preventing resource
-/// leaks (Architecture §6 — Memory Safety Rule #3).
 class CameraService with WidgetsBindingObserver {
   CameraService({
     required AppLogger logger,
@@ -35,8 +30,6 @@ class CameraService with WidgetsBindingObserver {
   final StreamController<CameraFrame> _frameStreamController =
       StreamController<CameraFrame>.broadcast();
 
-  /// Platform-agnostic camera frame stream.
-  /// Multiple listeners supported (broadcast).
   Stream<CameraFrame> get frameStream => _frameStreamController.stream;
 
   bool get isStreaming => _isStreaming;
@@ -44,14 +37,12 @@ class CameraService with WidgetsBindingObserver {
       _cameraController?.value.isInitialized ?? false;
   bool get isFrontCamera => _isFrontCamera;
 
-  /// Exposes the underlying camera controller for the preview widget.
   cam.CameraController? get controller => _cameraController;
 
   /// Camera sensor orientation in degrees (0, 90, 180, 270).
   int get sensorOrientation =>
       _cameraController?.description.sensorOrientation ?? 0;
 
-  /// Preview size reported by the camera (landscape dimensions).
   Size? get previewSize {
     if (_cameraController == null ||
         !_cameraController!.value.isInitialized) {
@@ -64,7 +55,6 @@ class CameraService with WidgetsBindingObserver {
   // Permissions
   // ---------------------------------------------------------------------------
 
-  /// Requests camera permission via the permission_handler plugin.
   Future<bool> requestPermission() async {
     final status = await Permission.camera.request();
     if (status.isGranted) {
@@ -79,7 +69,6 @@ class CameraService with WidgetsBindingObserver {
     return false;
   }
 
-  /// Checks camera permission without requesting.
   Future<bool> checkPermission() async {
     final status = await Permission.camera.status;
     return status.isGranted;
@@ -89,9 +78,6 @@ class CameraService with WidgetsBindingObserver {
   // Initialization
   // ---------------------------------------------------------------------------
 
-  /// Initializes the camera hardware.
-  ///
-  /// Must call [requestPermission] first if permission has not been granted.
   /// Throws [CameraUnavailableException] if no cameras are found.
   /// Throws [CameraInitException] on initialization failure.
   Future<void> initialize({bool useFrontCamera = true}) async {
@@ -133,7 +119,6 @@ class CameraService with WidgetsBindingObserver {
   }
 
   Future<void> _initController(cam.CameraDescription camera) async {
-    // Dispose previous controller if any.
     await _stopStreaming();
     await _cameraController?.dispose();
 
@@ -141,7 +126,7 @@ class CameraService with WidgetsBindingObserver {
       camera,
       cam.ResolutionPreset.medium, // 720p — balance quality/performance
       enableAudio: false,
-      imageFormatGroup: cam.ImageFormatGroup.yuv420,
+      imageFormatGroup: cam.ImageFormatGroup.nv21,
     );
 
     await _cameraController!.initialize();
@@ -151,8 +136,6 @@ class CameraService with WidgetsBindingObserver {
   // Streaming
   // ---------------------------------------------------------------------------
 
-  /// Starts the camera image stream and enables wakelock.
-  ///
   /// Throws [CameraInitException] if the camera is not initialized.
   Future<void> startStreaming() async {
     if (_isStreaming) return;
@@ -170,10 +153,18 @@ class CameraService with WidgetsBindingObserver {
     _logger.info(_tag, 'Image stream started');
   }
 
+  /// When `true`, new camera frames are dropped in `_onImageAvailable`
+  /// to prevent the native ImageReader buffer queue from overflowing.
+  bool isFrameBusy = false;
+
   void _onImageAvailable(cam.CameraImage image) {
     if (_isDisposed || _frameStreamController.isClosed) return;
 
-    // Record frame for FPS tracking.
+    // Back-pressure: skip this frame entirely if the pipeline hasn't
+    // finished with the previous one. Returning quickly lets the
+    // native camera recycle this buffer immediately.
+    if (isFrameBusy) return;
+
     _frameRateMonitor.recordFrame();
 
     try {
@@ -194,7 +185,6 @@ class CameraService with WidgetsBindingObserver {
     }
   }
 
-  /// Stops the image stream without disposing the camera.
   Future<void> _stopStreaming() async {
     if (!_isStreaming || _cameraController == null) return;
 
@@ -212,10 +202,6 @@ class CameraService with WidgetsBindingObserver {
   // Camera controls
   // ---------------------------------------------------------------------------
 
-  /// Switches between front and back camera.
-  ///
-  /// Stops streaming, re-initializes with the other lens, and resumes
-  /// streaming if it was previously active.
   Future<void> switchCamera() async {
     if (_cameras == null || _cameras!.isEmpty) return;
 
@@ -242,9 +228,7 @@ class CameraService with WidgetsBindingObserver {
     }
   }
 
-  /// Sets exposure compensation in EV stops.
-  ///
-  /// Clamped to the device's supported range.
+  /// Sets exposure compensation in EV stops, clamped to device range.
   Future<void> setExposure(double value) async {
     if (_cameraController == null ||
         !_cameraController!.value.isInitialized) {
@@ -268,13 +252,11 @@ class CameraService with WidgetsBindingObserver {
   // Lifecycle
   // ---------------------------------------------------------------------------
 
-  /// Pauses the camera (e.g., when app goes to background).
   Future<void> pause() async {
     _logger.debug(_tag, 'Pausing camera');
     await _stopStreaming();
   }
 
-  /// Resumes the camera (e.g., when app returns to foreground).
   Future<void> resume() async {
     if (_cameraController == null || _isDisposed) return;
 
@@ -284,7 +266,6 @@ class CameraService with WidgetsBindingObserver {
     }
   }
 
-  /// Releases all camera resources.
   Future<void> dispose() async {
     if (_isDisposed) return;
     _isDisposed = true;

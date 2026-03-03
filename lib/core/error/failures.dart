@@ -22,8 +22,6 @@ sealed class Failure {
   }
 }
 
-// Camera failures
-
 class CameraPermissionFailure extends Failure {
   const CameraPermissionFailure({super.message = 'Camera permission denied'});
 }
@@ -42,8 +40,6 @@ class CameraInitFailure extends Failure {
   });
 }
 
-// ML Engine failures
-
 class ModelLoadFailure extends Failure {
   const ModelLoadFailure({
     super.message = 'Model failed to load',
@@ -58,8 +54,6 @@ class InferenceFailure extends Failure {
   });
 }
 
-// Isolate failures
-
 class IsolateCrashFailure extends Failure {
   const IsolateCrashFailure({
     super.message = 'Inference isolate crashed',
@@ -67,9 +61,6 @@ class IsolateCrashFailure extends Failure {
   });
 }
 
-// Frame processing failures
-
-/// Transient error: corrupt data, unsupported format, etc.
 class FrameProcessingFailure extends Failure {
   const FrameProcessingFailure({
     super.message = 'Frame processing error',
@@ -77,9 +68,6 @@ class FrameProcessingFailure extends Failure {
   });
 }
 
-// Resource failures
-
-/// Memory, thermal, or battery pressure.
 class ResourcePressureFailure extends Failure {
   const ResourcePressureFailure({
     super.message = 'System resource pressure',

@@ -1,5 +1,3 @@
-/// Engines throw typed exceptions; services catch them and
-/// map them to `Failure` sealed classes.
 sealed class AppException implements Exception {
   const AppException({required this.message, this.stackTrace});
 
@@ -22,8 +20,6 @@ sealed class AppException implements Exception {
   }
 }
 
-// Camera exceptions
-
 class CameraPermissionException extends AppException {
   const CameraPermissionException({
     super.message = 'Camera permission denied',
@@ -44,8 +40,6 @@ class CameraInitException extends AppException {
   });
 }
 
-// ML Engine exceptions
-
 class ModelLoadException extends AppException {
   const ModelLoadException({
     super.message = 'Failed to load ML model',
@@ -59,8 +53,6 @@ class InferenceException extends AppException {
     super.stackTrace,
   });
 }
-
-// Isolate exceptions
 
 class IsolateCrashException extends AppException {
   const IsolateCrashException({
@@ -76,9 +68,6 @@ class IsolateTimeoutException extends AppException {
   });
 }
 
-// Frame processing exceptions
-
-/// Corrupt or unsupported camera frame data.
 class FrameProcessingException extends AppException {
   const FrameProcessingException({
     super.message = 'Frame processing error',

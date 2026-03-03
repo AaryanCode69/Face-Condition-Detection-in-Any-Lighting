@@ -1,6 +1,3 @@
-/// 1-second sliding-window FPS tracker.
-///
-/// Skeleton in Phase 1; fully wired in Phase 6.
 class FrameRateMonitor {
   final List<int> _timestamps = [];
 

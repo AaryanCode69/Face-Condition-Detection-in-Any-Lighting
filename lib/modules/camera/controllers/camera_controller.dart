@@ -9,10 +9,6 @@ import 'package:face_mood_light_detector/services/camera_service.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-/// Manages camera state, permissions, and preview for the UI layer.
-///
-/// Delegates all camera operations to [CameraService].
-/// Does NOT process frames, access ML engines, or manage detection state.
 class AppCameraController extends GetxController {
   AppCameraController({
     required CameraService cameraService,
@@ -34,8 +30,6 @@ class AppCameraController extends GetxController {
   final isPermissionGranted = false.obs;
   final previewSize = Rxn<Size>();
 
-  /// Expose the service for the preview widget to access the
-  /// underlying camera controller.
   CameraService get cameraService => _cameraService;
 
   @override
@@ -47,7 +41,6 @@ class AppCameraController extends GetxController {
   Future<void> _initializeCamera() async {
     cameraState.value = CameraState.initializing;
 
-    // 1. Request permission.
     final granted = await _cameraService.requestPermission();
     isPermissionGranted.value = granted;
 
@@ -57,14 +50,12 @@ class AppCameraController extends GetxController {
       return;
     }
 
-    // 2. Initialize camera hardware.
     try {
       await _cameraService.initialize(
         useFrontCamera: isFrontCamera.value,
       );
       previewSize.value = _cameraService.previewSize;
 
-      // 3. Start streaming frames.
       await _cameraService.startStreaming();
       cameraState.value = CameraState.ready;
       _logger.info(
@@ -79,7 +70,6 @@ class AppCameraController extends GetxController {
     }
   }
 
-  /// Toggles between front and back camera.
   Future<void> toggleCamera() async {
     if (cameraState.value != CameraState.ready) return;
 
@@ -104,8 +94,6 @@ class AppCameraController extends GetxController {
     }
   }
 
-  /// Requests permission and re-tries initialization. Opens system
-  /// settings if permission was permanently denied.
   Future<void> retryPermission() async {
     final granted = await _cameraService.checkPermission();
     if (granted) {

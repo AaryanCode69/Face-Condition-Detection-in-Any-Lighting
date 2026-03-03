@@ -1,4 +1,3 @@
-/// Runtime feature toggles for A/B testing, gradual rollouts, and debugging.
 class FeatureFlags {
   const FeatureFlags({
     this.enableEmotionAnalysis = true,
@@ -15,7 +14,6 @@ class FeatureFlags {
   final bool enableFpsOverlay;
   final bool enableDebugLogging;
 
-  /// Disabled until Phase 6 isolate infrastructure is built.
   final bool enableIsolateInference;
 
   FeatureFlags copyWith({

@@ -21,20 +21,16 @@ class CameraInfo {
     required this.previewSize,
   });
 
-  /// Degrees: 0, 90, 180, 270.
   final int sensorOrientation;
   final bool isFrontFacing;
   final Size previewSize;
 }
 
-/// Encapsulates the platform camera entirely — consumers never
-/// import the `camera` package directly.
 abstract class CameraSource {
   Future<void> initialize(CameraConfig config);
   Stream<CameraFrame> get frameStream;
   Future<void> switchCamera();
 
-  /// [value] is in EV stops (e.g., -2.0 to +2.0).
   Future<void> setExposure(double value);
 
   Future<void> dispose();

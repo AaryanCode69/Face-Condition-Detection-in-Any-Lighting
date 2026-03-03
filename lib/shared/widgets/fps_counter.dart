@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Stub in Phase 1; wired to real metrics in Phase 6.
 class FpsCounter extends StatelessWidget {
   const FpsCounter({
     super.key,
@@ -9,8 +8,6 @@ class FpsCounter extends StatelessWidget {
   });
 
   final double fps;
-
-  /// Pipeline latency in ms.
   final int latencyMs;
 
   @override

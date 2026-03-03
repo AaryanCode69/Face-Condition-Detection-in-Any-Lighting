@@ -5,7 +5,6 @@ enum LogSeverity {
   debug,
   info,
 
-  /// Unexpected but recoverable.
   warning,
   error,
 }
@@ -21,7 +20,6 @@ class LogEntry {
   final DateTime timestamp;
   final LogSeverity severity;
 
-  /// Source tag, e.g. 'Camera', 'Inference', 'Isolate'.
   final String tag;
   final String message;
   final StackTrace? stackTrace;
@@ -33,16 +31,12 @@ class LogEntry {
   }
 }
 
-/// Routes all output through `debugPrint`.
-/// Maintains a rolling buffer of the last [maxEntries] entries
-/// for the in-app log viewer.
 class AppLogger {
   AppLogger({this.maxEntries = 10000});
 
   final int maxEntries;
   final Queue<LogEntry> _entries = Queue<LogEntry>();
 
-  /// Newest-last.
   List<LogEntry> get entries => List.unmodifiable(_entries);
 
   void debug(String tag, String message) =>
@@ -70,13 +64,11 @@ class AppLogger {
       stackTrace: stackTrace,
     );
 
-    // Maintain rolling window.
     _entries.addLast(entry);
     while (_entries.length > maxEntries) {
       _entries.removeFirst();
     }
 
-    // Route through debugPrint (never print()).
     debugPrint(entry.toString());
     if (stackTrace != null) {
       debugPrint(stackTrace.toString());

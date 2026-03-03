@@ -1,8 +1,4 @@
 /// Controls frame processing rate with a drop-newest policy.
-///
-/// Prevents the ML pipeline from receiving more frames than it can
-/// process, bounding memory to a single in-flight frame
-/// (Architecture §6 — Memory Safety Rule #2).
 class FrameThrottleService {
   FrameThrottleService({int targetFps = 10}) : _targetFps = targetFps;
 
@@ -27,13 +23,8 @@ class FrameThrottleService {
     return _droppedFrames / total;
   }
 
-  /// Returns `true` if the incoming frame should be sent to the pipeline.
-  ///
-  /// Returns `false` if:
-  /// - The pipeline is still processing the previous frame ([_isBusy]).
-  /// - Not enough time has elapsed since the last processed frame.
-  ///
-  /// Frames that return `false` should be discarded (drop-newest policy).
+  /// Returns `true` if the frame should be processed;
+  /// `false` if it should be dropped (pipeline busy or rate-limited).
   bool shouldProcessFrame() {
     if (_isBusy) {
       _droppedFrames++;
@@ -53,13 +44,9 @@ class FrameThrottleService {
     return true;
   }
 
-  /// Mark the pipeline as busy (processing a frame).
   void markBusy() => _isBusy = true;
-
-  /// Mark the pipeline as idle (ready for next frame).
   void markIdle() => _isBusy = false;
 
-  /// Resets all counters and state.
   void reset() {
     _droppedFrames = 0;
     _processedFrames = 0;

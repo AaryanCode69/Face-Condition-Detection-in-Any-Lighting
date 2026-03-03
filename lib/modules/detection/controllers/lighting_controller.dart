@@ -1,7 +1,6 @@
 import 'package:face_mood_light_detector/domain/enums/lighting_condition.dart';
 import 'package:get/get.dart';
 
-/// Phase 1 stub — fully implemented in Phase 5.
 class LightingController extends GetxController {
   final lightingCondition = LightingCondition.balanced.obs;
   final estimatedLux = 300.0.obs;
