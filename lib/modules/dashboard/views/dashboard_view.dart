@@ -3,6 +3,7 @@ import 'package:face_mood_light_detector/modules/camera/views/camera_preview_vie
 import 'package:face_mood_light_detector/modules/dashboard/controllers/dashboard_controller.dart';
 import 'package:face_mood_light_detector/modules/detection/controllers/face_detection_controller.dart';
 import 'package:face_mood_light_detector/modules/detection/views/detection_overlay_view.dart';
+import 'package:face_mood_light_detector/modules/detection/views/emotion_display_view.dart';
 import 'package:face_mood_light_detector/shared/widgets/fps_counter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -72,48 +73,63 @@ class DashboardView extends GetView<DashboardController> {
             ),
 
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Obx(
-                  () => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Status: ${controller.overallStatus.value}',
-                        style: Theme.of(context).textTheme.titleMedium,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Emotion analysis card.
+                    const EmotionDisplayView(),
+
+                    // Status info.
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Text(
-                            'FPS: ${controller.fps.value.toStringAsFixed(1)}',
-                            style:
-                                Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const SizedBox(width: 16),
-                          Text(
-                            'Faces: ${faceController.faceCount.value}',
-                            style:
-                                Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const SizedBox(width: 16),
-                          Text(
-                            'Latency: '
-                            '${faceController.processingTimeMs.value}ms',
-                            style:
-                                Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
+                      child: Obx(
+                        () => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Status: ${controller.overallStatus.value}',
+                              style:
+                                  Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text(
+                                  'FPS: '
+                                  '${controller.fps.value.toStringAsFixed(1)}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Faces: '
+                                  '${faceController.faceCount.value}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Latency: '
+                                  '${faceController.processingTimeMs.value}'
+                                  'ms',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        controller.isFullPipelineReady.value
-                            ? 'Pipeline: Active'
-                            : 'Pipeline: Not ready',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

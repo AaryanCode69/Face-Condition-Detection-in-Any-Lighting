@@ -5,6 +5,7 @@ import 'package:face_mood_light_detector/core/performance/frame_rate_monitor.dar
 import 'package:face_mood_light_detector/domain/enums/camera_state.dart';
 import 'package:face_mood_light_detector/domain/enums/detection_state.dart';
 import 'package:face_mood_light_detector/modules/camera/controllers/camera_controller.dart';
+import 'package:face_mood_light_detector/modules/detection/controllers/emotion_controller.dart';
 import 'package:face_mood_light_detector/modules/detection/controllers/face_detection_controller.dart';
 import 'package:get/get.dart';
 
@@ -16,11 +17,13 @@ class DashboardController extends GetxController {
 
   late final AppCameraController _cameraController;
   late final FaceDetectionController _faceDetectionController;
+  late final EmotionController _emotionController;
   late final FrameRateMonitor _frameRateMonitor;
   late final AppLogger _logger;
 
   Worker? _cameraStateWorker;
   Worker? _detectionStateWorker;
+  Worker? _emotionReadyWorker;
   Timer? _fpsTimer;
 
   @override
@@ -28,6 +31,7 @@ class DashboardController extends GetxController {
     super.onInit();
     _cameraController = Get.find<AppCameraController>();
     _faceDetectionController = Get.find<FaceDetectionController>();
+    _emotionController = Get.find<EmotionController>();
     _frameRateMonitor = Get.find<FrameRateMonitor>();
     _logger = Get.find<AppLogger>();
 
@@ -39,6 +43,11 @@ class DashboardController extends GetxController {
     _detectionStateWorker = ever(
       _faceDetectionController.detectionState,
       _onDetectionStateChanged,
+    );
+
+    _emotionReadyWorker = ever(
+      _emotionController.isModelReady,
+      (_) => _refreshStatus(),
     );
 
     _fpsTimer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -72,6 +81,14 @@ class DashboardController extends GetxController {
     }
   }
 
+  void _refreshStatus() {
+    if (_cameraController.cameraState.value == CameraState.ready) {
+      _updateStatusFromDetection(
+        _faceDetectionController.detectionState.value,
+      );
+    }
+  }
+
   void _updateStatusFromDetection(DetectionState state) {
     switch (state) {
       case DetectionState.idle:
@@ -79,8 +96,13 @@ class DashboardController extends GetxController {
         isFullPipelineReady.value = false;
       case DetectionState.detecting:
         final count = _faceDetectionController.faceCount.value;
+        final emotionReady = _emotionController.isModelReady.value;
+        final emotionLabel = emotionReady
+            ? _emotionController.smoothedEmotion.value.label
+            : 'loading model';
         overallStatus.value = count > 0
-            ? 'Detecting — $count face${count == 1 ? '' : 's'} found'
+            ? 'Detecting — $count face${count == 1 ? '' : 's'} '
+                '($emotionLabel)'
             : 'Detecting — no faces';
         isFullPipelineReady.value = true;
       case DetectionState.paused:
@@ -97,6 +119,7 @@ class DashboardController extends GetxController {
   void onClose() {
     _cameraStateWorker?.dispose();
     _detectionStateWorker?.dispose();
+    _emotionReadyWorker?.dispose();
     _fpsTimer?.cancel();
     super.onClose();
   }

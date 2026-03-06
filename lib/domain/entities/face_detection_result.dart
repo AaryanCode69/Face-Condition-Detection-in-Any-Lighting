@@ -7,6 +7,9 @@ class FaceDetectionResult {
     required this.confidence,
     this.landmarks = const [],
     this.trackingId,
+    this.smilingProbability,
+    this.leftEyeOpenProbability,
+    this.rightEyeOpenProbability,
   });
 
   final Rect boundingBox;
@@ -15,6 +18,12 @@ class FaceDetectionResult {
   final double confidence;
   final List<Landmark> landmarks;
   final int? trackingId;
+
+  /// ML Kit face classification probabilities (0.0–1.0).
+  /// Used to supplement TFLite emotion classification.
+  final double? smilingProbability;
+  final double? leftEyeOpenProbability;
+  final double? rightEyeOpenProbability;
 
   @override
   String toString() =>

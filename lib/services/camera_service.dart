@@ -157,6 +157,17 @@ class CameraService with WidgetsBindingObserver {
   /// to prevent the native ImageReader buffer queue from overflowing.
   bool isFrameBusy = false;
 
+  /// Timestamp of the last frame we actually converted and emitted.
+  /// Used to enforce a hard rate limit at the camera callback level
+  /// BEFORE any byte copying, preventing the native ImageReader
+  /// BufferQueue from overflowing (TIMED_OUT crash).
+  int _lastEmittedFrameMs = 0;
+
+  /// Minimum interval between emitted frames in milliseconds.
+  /// At 12fps this is ~83ms — ensures we never copy more than
+  /// 12 frames/sec even if the camera fires callbacks at 30fps.
+  static const int _minFrameIntervalMs = 83;
+
   void _onImageAvailable(cam.CameraImage image) {
     if (_isDisposed || _frameStreamController.isClosed) return;
 
@@ -164,6 +175,13 @@ class CameraService with WidgetsBindingObserver {
     // finished with the previous one. Returning quickly lets the
     // native camera recycle this buffer immediately.
     if (isFrameBusy) return;
+
+    // Hard rate-limit at the camera callback level to prevent native
+    // ImageReader BufferQueue overflow. This check runs BEFORE any
+    // byte copying so dropped frames return near-instantly.
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _lastEmittedFrameMs < _minFrameIntervalMs) return;
+    _lastEmittedFrameMs = now;
 
     _frameRateMonitor.recordFrame();
 
